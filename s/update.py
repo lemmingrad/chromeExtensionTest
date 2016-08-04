@@ -19,10 +19,10 @@ form = cgi.FieldStorage()
 ccid = form.getvalue('ccid')
 
 if ccid is not None:
-	query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=DATETIME("now") WHERE ccid=?'
+	query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=datetime("now") WHERE ccid=?'
 	print query + '<br>'
 	c.execute(query, (ccid,))
-	query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time) VALUES (?, DATETIME("now"))'
+	query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time) VALUES (?, datetime("now"))'
 	print query + '<hr>'
 	c.execute(query, (ccid,))
 
