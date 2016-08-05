@@ -18,15 +18,22 @@ print "<title>Updating CCID</title>"
 
 form = cgi.FieldStorage()
 ccid = form.getvalue('ccid')
+action = form.getvalue('action')
 
 if ccid is not None:
-	query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=datetime("now") WHERE ccid=?'
-	print query + '<br>'
-	c.execute(query, (ccid,))
-	query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time) VALUES (?, datetime("now"))'
-	print query + '<hr>'
-	c.execute(query, (ccid,))
-
+	if action is not None and action == "left":
+		query = 'DELETE FROM ' + sqlite_table + ' WHERE ccid=?'
+		print query + '<br>'
+		c.execute(query, (ccid,))
+	else:
+		# if action != left, or omitted, do the default update
+		query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=datetime("now") WHERE ccid=?'
+		print query + '<br>'
+		c.execute(query, (ccid,))
+		query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time) VALUES (?, datetime("now"))'
+		print query + '<hr>'
+		c.execute(query, (ccid,))
+	
 	# Committing changes
 	conn.commit()
 

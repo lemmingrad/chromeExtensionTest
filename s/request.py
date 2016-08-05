@@ -18,9 +18,9 @@ c = conn.cursor()
 
 print "Content-type: text/html"
 print
-print "<title>Releasing CCID</title>"
+print "<title>Release CCID</title>"
 
-if use_minhold is 1:
+if use_minhold == 1:
 	query = 'SELECT ccid FROM ' + sqlite_table + ' WHERE (strftime("%s","now") - strftime("%s",time)) > ? ORDER BY time ASC'
 	print query
 	c.execute(query, (minhold,))
@@ -44,7 +44,7 @@ else:
 if r is not None:
 	rs = r[0]
 
-	if admin is 1:
+	if admin == 1:
 		cmd = ccollab + ' admin user edit ' + rs + ' --enabled false'
 
 		print '<br>Shell: ' + cmd + '<br>'
@@ -63,9 +63,9 @@ if r is not None:
 		exit_status1 = subprocess.call(cmd)
 		print '<br>Return: ' + repr(exit_status1)
 		
-		exit_status2 = 0;
+		exit_status2 = 0
 	
-	if exit_status1 is 0 and exit_status2 is 0:
+	if exit_status1 == 0 and exit_status2 == 0:
 		query = 'DELETE FROM ' + sqlite_table + ' WHERE ccid=?'
 		print '<br>' + query
 		c.execute(query, (rs,))		
