@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+
+  "name": "CCollab Auto-logout helper",
+  "description": "Just one part of many components that try to facilitate auto-logout from CCollab",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  
+  "permissions": [
+    "tabs",
+	"cookies",
+	"*://atx-coder.rsi.global/*"
+  ]
+}
+
