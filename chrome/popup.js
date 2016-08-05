@@ -4,8 +4,14 @@ function requestRelease() {
 	ifr.src = "http://localhost:8008/s/request.py";	
 }
 
-window.onload = function(){
+function logMeOut() {
+    var newURL = "http://atx-coder.rsi.global/ui#logout:";
+    chrome.tabs.create({ url: newURL });
+}
+
+window.onload = function() {
 	document.getElementById("request").addEventListener("click", requestRelease);
+	document.getElementById("logout").addEventListener("click", logMeOut);
 }
 
 setInterval(function() {
