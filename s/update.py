@@ -12,6 +12,7 @@ conn = sqlite3.connect(sqlite_file)
 c = conn.cursor()
 
 print "Content-type: text/html"
+print "Access-Control-Allow-Origin: *"
 print
 print "<title>Updating CCID</title>"
 
