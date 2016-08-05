@@ -1,9 +1,3 @@
-function removeCookie(domain, cookieName) {
-	chrome.cookies.remove({"url": "http://" + domain + "/", "name": cookieName}, function(deleted_cookie) { 
-		console.log(deleted_cookie); 
-	});
-}
-
 function getCookies(domain) {
 	chrome.cookies.getAll({"domain": domain}, function(cookies) {
 		if (cookies.length > 0) {
