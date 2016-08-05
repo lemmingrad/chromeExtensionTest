@@ -1,7 +1,7 @@
 
 function requestRelease() {
 	var ifr = document.getElementById('users');
-	ifr.src = "http://localhost:8008/s/remove.py";	
+	ifr.src = "http://localhost:8008/s/request.py";	
 }
 
 window.onload = function(){
