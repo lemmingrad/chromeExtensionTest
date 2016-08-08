@@ -1,7 +1,25 @@
+function removeCookie(domain, cookieName) {
+	chrome.cookies.remove({"url": "http://" + domain + "/", "name": cookieName}, function(deleted_cookie) { 
+		console.log(deleted_cookie); 
+	});
+}
 
 function requestRelease() {
 	var ifr = document.getElementById('users');
-	ifr.src = "http://localhost:8008/s/request.py";	
+//	ifr.src = "http://localhost:8008/s/request.py";	
+
+	//-- Doesn't work, not enough permissions
+	ifr.src = "http://atx-coder.rsi.global/ui#logout:";	
+	
+	//-- Doesn't work, doesn't actually clear server tokens
+	var request = new XMLHttpRequest();
+	if (request) {
+		request.open("GET", "http://atx-coder.rsi.global/ui#logout:", false);
+       	request.send();
+		
+		console.log(request.status);
+		console.log(request.responseText);
+	}
 }
 
 function logMeOut() {
