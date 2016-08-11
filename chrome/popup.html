@@ -13,12 +13,20 @@
 		</form>
 		<p>Local:</p>
 		<form>
-			<input id="logout" type="button" value="Log me out">
-			<input id="auto_toggle" type="checkbox" value="Auto">
-			<input id="auto_interval" type="text" value="interval">
+			<table>
+				<tr>
+					<td>Logout</td>
+					<td>Auto</td>
+				</tr>
+				<tr>
+					<td><input id="logout" type="button" value="Log me out"></td>
+					<td><input id="auto_toggle" type="checkbox" value="Auto">
+						<input id="auto_interval" type="text" value="interval"></td>
+				</tr>
+			</table>
 		</form>
 		<br>Info:<br> 
-		<iframe id="users" src="http://localhost:8008/s/list.py" width="300" height="200" frameborder="1">
+		<iframe id="users" src="http://localhost:8008/s/list.py" width="300" height="200" frameborder="0">
 		</iframe>
 	</body>
 </html>

@@ -4,6 +4,8 @@
 
 import sqlite3
 
+debug = 1
+
 sqlite_file = 'ccid.sqlite'    # name of the sqlite database file
 sqlite_table = 'ccid_table'
 
@@ -14,11 +16,13 @@ print "Content-type: text/html"
 print
 print "<title>List CCIDs</title>"
 
-query = 'SELECT * FROM %s ORDER BY time ASC' % (sqlite_table)
-print query + '<hr>'
+if 1 == debug:
+	query = 'SELECT * FROM %s ORDER BY time ASC' % (sqlite_table)
+	print query + '<hr>'
 
+print '<table id="results" style="border: 1px solid black; border-collapse: collapse;">'
 for row in c.execute(query):
-	print row
-	print "<br>"
+	print '<tr><td style="padding: 5px;">' + row[0] + '</td><td style="padding: 5px;">' + row[1] + '</td></tr>'
+print '</table>'
 	
 conn.close()

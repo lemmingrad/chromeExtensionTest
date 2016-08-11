@@ -14,16 +14,16 @@ c = conn.cursor()
 print "Content-type: text/html"
 print "Access-Control-Allow-Origin: *"
 print
-print "<title>Updating CCID</title>"
+print "<title>Update CCID</title>"
 
 form = cgi.FieldStorage()
 ccid = form.getvalue('ccid')
 action = form.getvalue('action')
 
 if ccid is not None:
-	if action is not None and action == "left":
+	if action is not None and "left" == action:
 		query = 'DELETE FROM ' + sqlite_table + ' WHERE ccid=?'
-		print query + '<br>'
+		print query + '<hr>'
 		c.execute(query, (ccid,))
 	else:
 		# if action != left, or omitted, do the default update

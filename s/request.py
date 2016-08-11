@@ -8,7 +8,7 @@ import subprocess
 ccollab = 'C:\Program Files\Collaborator Client\ccollab'
 admin = 0
 use_minhold = 0
-minhold = 10 * 60
+minhold = 5 * 60
 
 sqlite_file = 'ccid.sqlite'    # name of the sqlite database file
 sqlite_table = 'ccid_table'
@@ -20,23 +20,21 @@ print "Content-type: text/html"
 print
 print "<title>Release CCID</title>"
 
-if use_minhold == 1:
+if 1 == use_minhold:
 	query = 'SELECT ccid FROM ' + sqlite_table + ' WHERE (strftime("%s","now") - strftime("%s",time)) > ? ORDER BY time ASC'
-	print query
+	print query + '<br>'
 	c.execute(query, (minhold,))
 	r = c.fetchone()
 
-	print "<br>"
 	for row in c.execute(query, (minhold,)):
 		print row
 		print "<br>"
 else:
 	query = 'SELECT ccid FROM ' + sqlite_table + ' ORDER BY time ASC'
-	print query
+	print query + '<br>'
 	c.execute(query)
 	r = c.fetchone()
 
-	print "<br>"
 	for row in c.execute(query):
 		print row
 		print "<br>"
@@ -47,36 +45,36 @@ if r is not None:
 	if admin == 1:
 		cmd = ccollab + ' admin user edit ' + rs + ' --enabled false'
 
-		print '<br>Shell: ' + cmd + '<br>'
+		print 'Shell: ' + cmd + '<br>'
 		exit_status1 = subprocess.call(cmd)
-		print '<br>Return: ' + repr(exit_status1)
-
+		print '<br>Return: ' + repr(exit_status1) + '<br>'
+		
 		cmd = ccollab + ' admin user edit ' + rs + ' --enabled true'
 
-		print '<br>Shell: ' + cmd + '<br>'
+		print 'Shell: ' + cmd + '<br>'
 		exit_status2 = subprocess.call(cmd)
-		print '<br>Return: ' + repr(exit_status2)
+		print '<br>Return: ' + repr(exit_status2) + '<br>'
 	else:
 		cmd = ccollab + ' logout'
 
-		print '<br>Shell: ' + cmd + '<br>'
+		print 'Shell: ' + cmd + '<br>'
 		exit_status1 = subprocess.call(cmd)
-		print '<br>Return: ' + repr(exit_status1)
+		print '<br>Return: ' + repr(exit_status1) + '<br>'
 		
 		exit_status2 = 0
 	
 	if exit_status1 == 0 and exit_status2 == 0:
 		query = 'DELETE FROM ' + sqlite_table + ' WHERE ccid=?'
-		print '<br>' + query
+		print query + '<hr>'
 		c.execute(query, (rs,))		
 
 		conn.commit()
 
-		print "<hr><p>Released user '%s'</p>" % rs
+		print "<p>Released user '%s'</p>" % rs
 	else:
-		print "<hr><p>Failed to perform shell task.</p>"
+		print "<p>Failed to perform shell task.</p>"
 else:
-	print "<hr><p>No users available for release.</p>"
+	print "<p>No users available for release.</p>"
 
 conn.close()
 

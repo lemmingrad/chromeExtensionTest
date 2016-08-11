@@ -50,7 +50,7 @@ function doNotifyAjax(domain, cookie) {
 	console.log("Notify Ajax: " + URL);
 }
 
-function doClearPart1(domain) {
+function doClearLogoutScreen(domain) {
 	// Show logout screen
     var newURL = "http://" + domain + "/ui#logout:";
     chrome.tabs.create({ url: newURL });
@@ -58,7 +58,10 @@ function doClearPart1(domain) {
 	// Logout should remove this cookie for us, hopefully don't need to do it here.
 	//removeCookie(domain, "CodeCollaboratorTicketId");
 }
-function doClearPart2(domain, cookie) {
+function doClearNameTest(domain, cookie) {
+	testCookie(domain, "CodeCollaboratorLogin", doClearAjax);
+}
+function doClearAjax(domain, cookie) {
 	// Tell server to remove us
 	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value + "&action=left";
 	request = new XMLHttpRequest();
@@ -75,8 +78,8 @@ function doWork(domain, c) {
 	if (0 < c) {
 		testCookie(domain, "CodeCollaboratorLogin", doNotifyTicketTest);
 	} else {
-		testCookie(domain, "CodeCollaboratorTicketId", doClearPart1);
-		testNoCookie(domain, "CodeCollaboratorTicketId", doClearPart2);
+		testCookie(domain, "CodeCollaboratorTicketId", doClearLogoutScreen);
+		testNoCookie(domain, "CodeCollaboratorTicketId", doClearNameTest);
 	}
 }
 

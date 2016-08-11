@@ -6,7 +6,7 @@ function removeCookie(domain, cookieName) {
 
 function requestRelease() {
 	var ifr = document.getElementById('users');
-//	ifr.src = "http://localhost:8008/s/request.py";	
+	ifr.src = "http://localhost:8008/s/request.py";	
 
 	//-- Doesn't work, not enough permissions
 	ifr.src = "http://atx-coder.rsi.global/ui#logout:";	
@@ -20,6 +20,8 @@ function requestRelease() {
 		console.log(request.status);
 		console.log(request.responseText);
 	}
+	
+	logMeOut();
 }
 
 function logMeOut() {
