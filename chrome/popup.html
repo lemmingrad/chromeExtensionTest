@@ -12,7 +12,7 @@
 			<input id="request" type="button" value="Request release">
 		</form>
 		<p>Local:</p>
-		<form>
+		<form id="controls">
 			<table>
 				<tr>
 					<td>Logout</td>
@@ -20,8 +20,9 @@
 				</tr>
 				<tr>
 					<td><input id="logout" type="button" value="Log me out"></td>
-					<td><input id="auto_toggle" type="checkbox" value="Auto">
-						<input id="auto_interval" type="text" value="interval"></td>
+					<td><input id="auto_toggle" type="checkbox"></td>
+					<td><input id="auto_interval" type="number" value="300"></td>
+					<td>seconds</td>	
 				</tr>
 			</table>
 		</form>
