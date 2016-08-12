@@ -5,29 +5,23 @@
 		<script src="popup.js"></script>
 	</head>
 	<body>
-		<p>CCollab logout extension</p>
-		<p>Nev 2016</p>
-		<p>Server: (debug)</p>
-		<form>
-			<input id="request" type="button" value="Request release">
+		<h2>CCollab logout extension</h2>
+		<p>&copy; Nev 2016</p>
+		<hr>
+		<h3>Local:</h3>
+		<form id="local_controls">
+			<p>Force logout if all CCollab tabs are closed: <input id="auto_toggle" type="checkbox"></p>
+			<p>or <input id="logout" type="button" value="Log me out now"></p>
 		</form>
-		<p>Local:</p>
-		<form id="controls">
-			<table>
-				<tr>
-					<td>Logout</td>
-					<td>Auto</td>
-				</tr>
-				<tr>
-					<td><input id="logout" type="button" value="Log me out"></td>
-					<td><input id="auto_toggle" type="checkbox"></td>
-					<td><input id="auto_interval" type="number" value="300"></td>
-					<td>seconds</td>	
-				</tr>
-			</table>
+		<hr>
+		<h3>Remote:</h3>
+		<form id="remote_controls">
+			<p>Allow remote server to log you out: <input id="remote_toggle" type="checkbox"></p>
+			<p>after <input id="remote_interval" type="number" value="300"> seconds</p>
+		
+			<p><input id="request" type="button" value="Request release (debug)"></p>		
 		</form>
-		<br>Info:<br> 
-		<iframe id="users" src="http://localhost:8008/s/list.py" width="300" height="200" frameborder="0">
+		<iframe id="remote_users" src="http://localhost:8008/s/list.py" width="300" height="200" frameborder="0">
 		</iframe>
 	</body>
 </html>

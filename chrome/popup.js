@@ -1,10 +1,12 @@
 function requestRelease() {
-	var ifr = document.getElementById('users');
+	var ifr = document.getElementById('remote_users');
 	ifr.src = "http://localhost:8008/s/request.py";	
 
 	//-- Doesn't work, not enough permissions
+/*
 	ifr.src = "http://atx-coder.rsi.global/ui#logout:";	
-	
+*/
+/*	
 	//-- Doesn't work, doesn't actually clear server tokens
 	var request = new XMLHttpRequest();
 	if (request) {
@@ -14,8 +16,7 @@ function requestRelease() {
 		console.log(request.status);
 		console.log(request.responseText);
 	}
-	
-	logMeOut();
+*/	
 }
 
 function logMeOut() {
@@ -26,24 +27,33 @@ function logMeOut() {
 function toggleAutoLogout() {
 	var auto_toggle = document.getElementById("auto_toggle");
 	localStorage.auto_toggle = auto_toggle.checked;
-	document.getElementById("auto_interval").disabled = !auto_toggle.checked;
 }
 
-function updateAutoLogoutInterval() {
-	var auto_interval = document.getElementById("auto_interval");
-	localStorage.auto_interval = auto_interval.value;
+function toggleRemoteLogout() {
+	var remote_toggle = document.getElementById("remote_toggle");
+	localStorage.remote_toggle = remote_toggle.checked;
+	document.getElementById("remote_interval").disabled = !remote_toggle.checked;
+}
+
+function updateRemoteLogoutInterval() {
+	var remote_interval = document.getElementById("remote_interval");
+	localStorage.remote_interval = remote_interval.value;
 }
 
 window.onunload = function() {
 	var auto_toggle = document.getElementById("auto_toggle");
 	localStorage.auto_toggle = auto_toggle.checked;
+
+	var remote_toggle = document.getElementById("remote_toggle");
+	localStorage.remote_toggle = remote_toggle.checked;
 	
-	var auto_interval = document.getElementById("auto_interval");
-	localStorage.auto_interval = auto_interval.value;
+	var auto_interval = document.getElementById("remote_interval");
+	localStorage.remote_interval = remote_interval.value;
 }
 
 window.onload = function() {
-	document.getElementById("controls").addEventListener("submit", function(e) { e.preventDefault(); return false; });
+	document.getElementById("local_controls").addEventListener("submit", function(e) { e.preventDefault(); return false; });
+	document.getElementById("remote_controls").addEventListener("submit", function(e) { e.preventDefault(); return false; });
 	document.getElementById("request").addEventListener("click", requestRelease);
 	document.getElementById("logout").addEventListener("click", logMeOut);
 	
@@ -51,14 +61,18 @@ window.onload = function() {
 	auto_toggle.checked = JSON.parse(localStorage.auto_toggle);
 	auto_toggle.addEventListener("click", toggleAutoLogout);
 	
-	var auto_interval = document.getElementById("auto_interval");
-	auto_interval.value = localStorage.auto_interval;
-	auto_interval.disabled = !auto_toggle.checked;
-	auto_interval.addEventListener("change", updateAutoLogoutInterval);
+	var remote_toggle = document.getElementById("remote_toggle");
+	remote_toggle.checked = JSON.parse(localStorage.remote_toggle);
+	remote_toggle.addEventListener("click", toggleRemoteLogout);
+
+	var remote_interval = document.getElementById("remote_interval");
+	remote_interval.value = localStorage.remote_interval;
+	remote_interval.disabled = !remote_toggle.checked;
+	remote_interval.addEventListener("change", updateRemoteLogoutInterval);
 }
 
 setInterval(function() {
-	var ifr = document.getElementById('users');
+	var ifr = document.getElementById('remote_users');
 	ifr.src = "http://localhost:8008/s/list.py";
 }, 60 * 1000);
 
