@@ -36,8 +36,8 @@ function testTabs(domain, callbackFn) {
  	});
 }
 
-function doNotifyTicketTest(domain, cookie) {
-	testCookie(domain, "CodeCollaboratorTicketId", doNotifyAjax);
+function doNotifyNameTest(domain, cookie) {
+	testCookie(domain, "CodeCollaboratorLogin", doNotifyAjax);
 }
 function doNotifyAjax(domain, cookie) {
 	// Heartbeat to server
@@ -50,15 +50,11 @@ function doNotifyAjax(domain, cookie) {
 	console.log("Notify Ajax: " + URL);
 }
 
-function doClearLogoutScreen(domain) {
-	// Show logout screen
-    var newURL = "http://" + domain + "/ui#logout:";
-    chrome.tabs.create({ url: newURL });
-	
-	// Logout should remove this cookie for us, hopefully don't need to do it here.
-	//removeCookie(domain, "CodeCollaboratorTicketId");
-}
+var gLogoutTimerId = null;
+
 function doClearNameTest(domain, cookie) {
+	clearTimeout(gLogoutTimerId);
+	gLogoutTimerId = null;
 	testCookie(domain, "CodeCollaboratorLogin", doClearAjax);
 }
 function doClearAjax(domain, cookie) {
@@ -72,17 +68,36 @@ function doClearAjax(domain, cookie) {
 	console.log("Notify Ajax: " + URL);
 }
 
+function doLogoutNameTest(domain, cookie) {
+	testCookie(domain, "CodeCollaboratorLogin", doLogoutStartTimer);
+}
+function doLogoutStartTimer(domain, cookie) {
+	if (JSON.parse(localStorage.auto_toggle) == true) {
+		var t = localStorage.auto_interval;
+		clearTimeout(gLogoutTimerId);
+		gLogoutTimerId = setTimeout(doLogoutScreen, t * 1000, domain);
+		
+		console.log("starting logout screen timer " + t);
+	}
+}
+function doLogoutScreen(domain) {
+	// Show logout screen
+    var newURL = "http://" + domain + "/ui#logout:";
+    chrome.tabs.create({ url: newURL });
+}
+
 function doWork(domain, c) {
 	console.log(c + " open " + domain + " tabs detected.");
 	getCookies(domain);
 	if (0 < c) {
-		testCookie(domain, "CodeCollaboratorLogin", doNotifyTicketTest);
+		testCookie(domain, "CodeCollaboratorTicketId", doNotifyNameTest);
 	} else {
-		testCookie(domain, "CodeCollaboratorTicketId", doClearLogoutScreen);
-		testNoCookie(domain, "CodeCollaboratorTicketId", doClearNameTest);
+		testCookie(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
 	}
+
+	testNoCookie(domain, "CodeCollaboratorTicketId", doClearNameTest);
 }
 
 setInterval(function() {
 	testTabs("atx-coder.rsi.global", doWork);
-}, 1 * 60 * 1000);
+}, 60 * 1000);
