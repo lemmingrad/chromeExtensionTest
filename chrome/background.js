@@ -10,6 +10,13 @@ function getCookies(domain) {
 	});
 }
 
+function getLocalStorageBool(from, dfault) {
+	if (null != localStorage[from]) {
+		return !!JSON.parse(localStorage[from].toLowerCase());
+	}
+	return dfault;
+}
+
 function removeCookie(domain, cookieName) {
 	chrome.cookies.remove({"url": "http://" + domain + "/", "name": cookieName}, function(deleted_cookie) { 
 		console.log("Deleted cookie: " + deleted_cookie); 
@@ -42,6 +49,12 @@ function doNotifyNameTest(domain, cookie) {
 function doNotifyAjax(domain, cookie) {
 	// Heartbeat to server
 	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value;
+
+	var remoteInterval = localStorage.remote_interval || 0;
+	if (remoteInterval > 0) {
+		URL += "&to=" + remoteInterval;
+	}
+
 	request = new XMLHttpRequest();
   	if (request) {
       	request.open("GET", URL);
@@ -50,11 +63,7 @@ function doNotifyAjax(domain, cookie) {
 	console.log("Notify Ajax: " + URL);
 }
 
-var gLogoutTimerId = null;
-
 function doClearNameTest(domain, cookie) {
-	clearTimeout(gLogoutTimerId);
-	gLogoutTimerId = null;
 	testCookie(domain, "CodeCollaboratorLogin", doClearAjax);
 }
 function doClearAjax(domain, cookie) {
@@ -68,36 +77,49 @@ function doClearAjax(domain, cookie) {
 	console.log("Notify Ajax: " + URL);
 }
 
+var dirtyFlag = true;
+
 function doLogoutNameTest(domain, cookie) {
-	testCookie(domain, "CodeCollaboratorLogin", doLogoutStartTimer);
+	testCookie(domain, "CodeCollaboratorLogin", doLogoutScreen);
 }
-function doLogoutStartTimer(domain, cookie) {
-	if (JSON.parse(localStorage.auto_toggle) == true) {
-		var t = localStorage.auto_interval;
-		clearTimeout(gLogoutTimerId);
-		gLogoutTimerId = setTimeout(doLogoutScreen, t * 1000, domain);
-		
-		console.log("starting logout screen timer " + t);
-	}
-}
-function doLogoutScreen(domain) {
+function doLogoutScreen(domain, cookie) {
 	// Show logout screen
     var newURL = "http://" + domain + "/ui#logout:";
     chrome.tabs.create({ url: newURL });
+	
+	if (true == getLocalStorageBool("remote_toggle", false)) {
+		doClearAjax(domain, cookie);
+		dirtyFlag = false;
+	}
 }
 
 function doWork(domain, c) {
 	console.log(c + " open " + domain + " tabs detected.");
 	getCookies(domain);
-	if (0 < c) {
-		testCookie(domain, "CodeCollaboratorTicketId", doNotifyNameTest);
-	} else {
-		testCookie(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
-	}
 
-	testNoCookie(domain, "CodeCollaboratorTicketId", doClearNameTest);
+	// possible states
+	// 1) open tabs, ticket, dirty -> send "alive"
+	// 2) open tabs, ticket, notdirty -> send "alive"
+	// 3) open tabs, no ticket, dirty -> send "left", set notdirty
+	// 4) open tabs, no ticket, notdirty -> do nothing
+	
+	// 5) no tabs, ticket, dirty -> send "alive", set notdirty
+	// 6) no tabs, ticket, notdirty -> send "alive", set notdirty
+	// 7) no tabs, no ticket, dirty -> send "left", set notdirty
+	// 8) no tabs, no ticket, notdirty -> do nothing
+	
+	if (0 < c) {
+	} else {
+		if (true == getLocalStorageBool("auto_toggle", false)) {
+			testCookie(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
+		}
+		if (true == getLocalStorageBool("remote_toggle", false)) {
+			testCookie(domain, "CodeCollaboratorTicketId", doNotifyNameTest);
+			testNoCookie(domain, "CodeCollaboratorTicketId", doClearNameTest);
+		}
+	}
 }
 
 setInterval(function() {
 	testTabs("atx-coder.rsi.global", doWork);
-}, 60 * 1000);
+}, 30 * 1000);

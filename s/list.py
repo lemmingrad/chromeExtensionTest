@@ -25,4 +25,5 @@ for row in c.execute(query):
 	print '<tr><td style="padding: 5px;">' + row[0] + '</td><td style="padding: 5px;">' + row[1] + '</td></tr>'
 print '</table>'
 	
+# Closing the connection to the database file
 conn.close()
