@@ -4,7 +4,7 @@
 
 import sqlite3
 
-debug = 1
+debug = 0
 
 sqlite_file = 'ccid.sqlite'    # name of the sqlite database file
 sqlite_table = 'ccid_table'
