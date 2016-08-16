@@ -10,49 +10,65 @@ function getCookies(domain) {
 	});
 }
 
-function getLocalStorageBool(from, dfault) {
-	if (null != localStorage[from]) {
-		return !!JSON.parse(localStorage[from].toLowerCase());
-	}
-	return dfault;
-}
+//function removeCookie(domain, cookieName) {
+//	chrome.cookies.remove({"url": "http://" + domain + "/", "name": cookieName}, function(deleted_cookie) { 
+//		console.log("Deleted cookie: " + deleted_cookie); 
+//	});
+//}
 
-function removeCookie(domain, cookieName) {
-	chrome.cookies.remove({"url": "http://" + domain + "/", "name": cookieName}, function(deleted_cookie) { 
-		console.log("Deleted cookie: " + deleted_cookie); 
-	});
-}
-
-function testCookie(domain, cookieName, callbackFn) {
+function onCookieExists(domain, cookieName, callbackFn) {
 	chrome.cookies.get({"url": "http://" + domain + "/", "name": cookieName}, function(cookie) {
 		if (cookie) {
 			callbackFn(domain, cookie);
 		}
 	});
 }
-function testNoCookie(domain, cookieName, callbackFn) {
+//function onCookieNotExists(domain, cookieName, callbackFn) {
+//	chrome.cookies.get({"url": "http://" + domain + "/", "name": cookieName}, function(cookie) {
+//		if (null == cookie) {
+//			callbackFn(domain);
+//		}
+//	});
+//}
+function onCookie(domain, cookieName, callbackFn) {
 	chrome.cookies.get({"url": "http://" + domain + "/", "name": cookieName}, function(cookie) {
-		if (null == cookie) {
-			callbackFn(domain);
-		}
+		callbackFn(domain, cookie);
 	});
 }
+
+function getLocalStorageBool(id, dfault) {
+	if (null != localStorage[id]) {
+		return !!JSON.parse(localStorage[id].toLowerCase());
+	}
+	return dfault;
+}
+function getLocalStorageInt(id, dfault) {
+	if (null != localStorage[id]) {
+		return parseInt(localStorage[id]);
+	}	
+	return dfault;
+}
+
 function testTabs(domain, callbackFn) {
 	chrome.tabs.query({"url": "*://" + domain + "/*"}, function(tabs2) {  
 		callbackFn(domain, tabs2.length);
  	});
 }
 
-function doNotifyNameTest(domain, cookie) {
-	testCookie(domain, "CodeCollaboratorLogin", doNotifyAjax);
+function doSendRemoteUpdate(domain, cookie) {
+	if (cookie) {
+		onCookieExists(domain, "CodeCollaboratorLogin", doNotifyAjax);
+	} else {
+		onCookieExists(domain, "CodeCollaboratorLogin", doClearAjax);
+	}
 }
 function doNotifyAjax(domain, cookie) {
 	// Heartbeat to server
 	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value;
 
-	var remoteInterval = localStorage.remote_interval || 0;
+	var remoteInterval = getLocalStorageInt("remote_interval", 0);
 	if (remoteInterval > 0) {
-		URL += "&to=" + remoteInterval;
+		URL += "&hold=" + remoteInterval;
 	}
 
 	request = new XMLHttpRequest();
@@ -61,26 +77,22 @@ function doNotifyAjax(domain, cookie) {
        	request.send();
    	}
 	console.log("Notify Ajax: " + URL);
-}
-
-function doClearNameTest(domain, cookie) {
-	testCookie(domain, "CodeCollaboratorLogin", doClearAjax);
+	dirtyFlag = false;
 }
 function doClearAjax(domain, cookie) {
 	// Tell server to remove us
-	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value + "&action=left";
+	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value + "&action=remove";
 	request = new XMLHttpRequest();
   	if (request) {
       	request.open("GET", URL);
        	request.send();
    	}
 	console.log("Notify Ajax: " + URL);
+	dirtyFlag = false;
 }
 
-var dirtyFlag = true;
-
 function doLogoutNameTest(domain, cookie) {
-	testCookie(domain, "CodeCollaboratorLogin", doLogoutScreen);
+	onCookieExists(domain, "CodeCollaboratorLogin", doLogoutScreen);
 }
 function doLogoutScreen(domain, cookie) {
 	// Show logout screen
@@ -88,38 +100,78 @@ function doLogoutScreen(domain, cookie) {
     chrome.tabs.create({ url: newURL });
 	
 	if (true == getLocalStorageBool("remote_toggle", false)) {
-		doClearAjax(domain, cookie);
-		dirtyFlag = false;
+		setTimeout(doClearAjax, 5 * 1000, domain, cookie);
 	}
 }
+
+function doSetTicketExistsBool(domain, cookie) {
+	var ticketExists = (null != cookie);
+	if (ticketExists != ticketExisted) {
+		ticketExisted = ticketExists;
+		dirtyFlag = true;
+	}
+}
+
+var dirtyFlag = true;
+var numTabs = 0;
+var ticketExisted = false;
 
 function doWork(domain, c) {
 	console.log(c + " open " + domain + " tabs detected.");
 	getCookies(domain);
-
-	// possible states
-	// 1) open tabs, ticket, dirty -> send "alive"
-	// 2) open tabs, ticket, notdirty -> send "alive"
-	// 3) open tabs, no ticket, dirty -> send "left", set notdirty
-	// 4) open tabs, no ticket, notdirty -> do nothing
 	
-	// 5) no tabs, ticket, dirty -> send "alive", set notdirty
-	// 6) no tabs, ticket, notdirty -> send "alive", set notdirty
-	// 7) no tabs, no ticket, dirty -> send "left", set notdirty
-	// 8) no tabs, no ticket, notdirty -> do nothing
+	// local logout logic block:
 	
+	// if number of tabs is 0
+	//   if auto_toggle is true
+	//     if ticket exists
+	//       if user exists
+	//         load logout tab
+	//         if remote_toggle is true
+	//           send "left" to server
+	//           clear dirty flag
+	//         endif
+	//       endif
+	//     endif
+	//   endif
+	// endif
 	if (0 < c) {
 	} else {
 		if (true == getLocalStorageBool("auto_toggle", false)) {
-			testCookie(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
+			onCookieExists(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
 		}
-		if (true == getLocalStorageBool("remote_toggle", false)) {
-			testCookie(domain, "CodeCollaboratorTicketId", doNotifyNameTest);
-			testNoCookie(domain, "CodeCollaboratorTicketId", doClearNameTest);
-		}
+	}
+
+	// remote logic block:
+
+	// update dirty flag if ticket exists has changed
+	onCookie(domain, "CodeCollaboratorTicketId", doSetTicketExistsBool);
+
+	// update dirty flag if number of tabs has changed
+	if (c != numTabs) {
+		numTabs = c;
+		dirtyFlag = true;
+	}
+
+	// if remote_toggle is true
+	//   if dirty flag is true
+	//     if ticket exists
+	//       if user exists
+	//         send "alive"
+	//       endif
+	//     else
+	//       if user exists
+	//         send "left"
+	//       endif
+	//     endif
+	//     clear dirty flag
+	//   endif
+	// endif
+	if (true == getLocalStorageBool("remote_toggle", false) && true == dirtyFlag) {
+		onCookie(domain, "CodeCollaboratorTicketId", doSendRemoteUpdate);
 	}
 }
 
 setInterval(function() {
 	testTabs("atx-coder.rsi.global", doWork);
-}, 30 * 1000);
+}, 15 * 1000);

@@ -7,7 +7,7 @@ import subprocess
 
 ccollab = 'C:\Program Files\Collaborator Client\ccollab'
 admin = 0
-use_minhold = 0
+use_minhold = 2	#0 = off, 1 = use minhold variable, 2 = use db hold field
 minhold = 5 * 60
 
 sqlite_file = 'ccid.sqlite'    # name of the sqlite database file
@@ -20,6 +20,12 @@ print "Content-type: text/html"
 print
 print "<title>Release CCID</title>"
 
+query = 'SELECT * FROM ' + sqlite_table
+print query + '<br>'
+for row in c.execute(query):
+	print row
+	print "<br>"
+
 if 1 == use_minhold:
 	query = 'SELECT ccid FROM ' + sqlite_table + ' WHERE (strftime("%s","now") - strftime("%s",time)) > ? ORDER BY time ASC'
 	print query + '<br>'
@@ -27,6 +33,16 @@ if 1 == use_minhold:
 	r = c.fetchone()
 
 	for row in c.execute(query, (minhold,)):
+		print row
+		print "<br>"
+elif 2 == use_minhold:
+	# minhold is set from the DB
+	query = 'SELECT ccid FROM ' + sqlite_table + ' WHERE ((strftime("%s","now") - strftime("%s",time)) >= hold) AND (hold > 0) ORDER BY time ASC'
+	print query + '<br>'
+	c.execute(query)
+	r = c.fetchone()
+
+	for row in c.execute(query):
 		print row
 		print "<br>"
 else:

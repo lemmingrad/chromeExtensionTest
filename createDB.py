@@ -10,8 +10,8 @@ conn = sqlite3.connect(sqlite_file)
 c = conn.cursor()
 
 # Creating a new SQLite table with 1 column
-c.execute('CREATE TABLE %s ( ccid TEXT PRIMARY KEY, time INTEGER )' % (sqlite_table))
-c.execute('INSERT INTO %s (ccid, time) VALUES ( "mneve", datetime("now") )' % (sqlite_table))
+c.execute('CREATE TABLE %s ( ccid TEXT PRIMARY KEY, time INTEGER, hold INTEGER )' % (sqlite_table))
+c.execute('INSERT INTO %s (ccid, time, hold) VALUES ( "mneve", datetime("now"), 0 )' % (sqlite_table))
 
 # Committing changes and closing the connection to the database file
 conn.commit()

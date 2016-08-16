@@ -22,7 +22,9 @@ if 1 == debug:
 
 print '<table id="results" style="border: 1px solid black; border-collapse: collapse;">'
 for row in c.execute(query):
-	print '<tr><td style="padding: 5px;">' + row[0] + '</td><td style="padding: 5px;">' + row[1] + '</td></tr>'
+	print '<tr><td style="padding: 5px;">' + row[0] + '</td>'
+	print '<td style="padding: 5px;">' + row[1] + '</td>'
+	print '<td style="padding: 5px;">' + (repr(row[2]) if (row[2] >= 0) else "HOLD") + '</td></tr>'
 print '</table>'
 	
 # Closing the connection to the database file

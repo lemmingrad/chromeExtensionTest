@@ -5,6 +5,9 @@
 import cgi
 import sqlite3
 
+# default number of seconds for the hold field if not supplied in querystring
+default_timeout = 300
+
 sqlite_file = 'ccid.sqlite'    # name of the sqlite database file
 sqlite_table = 'ccid_table'
 
@@ -19,20 +22,28 @@ print "<title>Update CCID</title>"
 form = cgi.FieldStorage()
 ccid = form.getvalue('ccid')
 action = form.getvalue('action')
+timeout = form.getvalue('hold', repr(default_timeout));
 
 if ccid is not None:
-	if action is not None and "left" == action:
+	if action is not None and "remove" == action:
 		query = 'DELETE FROM ' + sqlite_table + ' WHERE ccid=?'
 		print query + '<hr>'
 		c.execute(query, (ccid,))
-	else:
-		# if action != left, or omitted, do the default update
-		query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=datetime("now") WHERE ccid=?'
+	elif action is not None and "hold" == action:
+		query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=datetime("now"),hold=-1 WHERE ccid=?'
 		print query + '<br>'
 		c.execute(query, (ccid,))
-		query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time) VALUES (?, datetime("now"))'
+		query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time, hold) VALUES (?, datetime("now"), -1)'
 		print query + '<hr>'
 		c.execute(query, (ccid,))
+	else:
+		# if action != 'remove', or action != "hold", or action ommitted, do the default update
+		query = 'UPDATE OR IGNORE ' + sqlite_table + ' SET time=datetime("now"),hold=? WHERE ccid=?'
+		print query + '<br>'
+		c.execute(query, (timeout,ccid))
+		query = 'INSERT OR IGNORE INTO ' + sqlite_table + ' (ccid, time, hold) VALUES (?, datetime("now"), ?)'
+		print query + '<hr>'
+		c.execute(query, (ccid,timeout))
 	
 	# Committing changes
 	conn.commit()
