@@ -63,7 +63,7 @@ function doSendRemoteUpdate(domain, cookie) {
 	}
 }
 function doNotifyAjax(domain, cookie) {
-	// Heartbeat to server
+	//-- Heartbeat to server
 	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value;
 
 	var remoteInterval = getLocalStorageInt("remote_interval", 0);
@@ -80,7 +80,7 @@ function doNotifyAjax(domain, cookie) {
 	dirtyFlag = false;
 }
 function doClearAjax(domain, cookie) {
-	// Tell server to remove us
+	//-- Tell server to remove us
 	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value + "&action=remove";
 	request = new XMLHttpRequest();
   	if (request) {
@@ -95,7 +95,7 @@ function doLogoutNameTest(domain, cookie) {
 	onCookieExists(domain, "CodeCollaboratorLogin", doLogoutScreen);
 }
 function doLogoutScreen(domain, cookie) {
-	// Show logout screen
+	//-- Show logout screen
     var newURL = "http://" + domain + "/ui#logout:";
     chrome.tabs.create({ url: newURL });
 	
@@ -117,10 +117,11 @@ var numTabs = 0;
 var ticketExisted = false;
 
 function doWork(domain, c) {
+	//-- just some debug info. Spam!
 	console.log(c + " open " + domain + " tabs detected.");
 	getCookies(domain);
 	
-	// local logout logic block:
+	//-- local logout logic block:
 	
 	// if number of tabs is 0
 	//   if auto_toggle is true
@@ -142,12 +143,12 @@ function doWork(domain, c) {
 		}
 	}
 
-	// remote logic block:
+	//-- remote logic block:
 
-	// update dirty flag if ticket exists has changed
+	//-- update dirty flag if ticket exists has changed
 	onCookie(domain, "CodeCollaboratorTicketId", doSetTicketExistsBool);
 
-	// update dirty flag if number of tabs has changed
+	//-- update dirty flag if number of tabs has changed
 	if (c != numTabs) {
 		numTabs = c;
 		dirtyFlag = true;
@@ -172,6 +173,7 @@ function doWork(domain, c) {
 	}
 }
 
+//-- set refresh interval for main logic loop
 setInterval(function() {
 	testTabs("atx-coder.rsi.global", doWork);
 }, 15 * 1000);

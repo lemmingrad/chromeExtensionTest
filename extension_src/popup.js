@@ -1,14 +1,21 @@
 function requestRelease() {
-	var ifr = document.getElementById('remote_users');
-	ifr.src = "http://localhost:8008/s/request.py";	
+	//-- Fire off an AJAX request to remote server, requesting it release the first user in the list.
+	var req = new XMLHttpRequest();
+	if (req) {
+       	req.onreadystatechange = function() {
+            if (req.readyState == 4 && req.status == 200) {
+				var div = document.getElementById('remote_users');
+				div.innerHTML = req.responseText;
+            }
+        }
+		req.open("GET", "http://localhost:8008/s/request.py");
+		req.send();
+	}	
+}
 
-	//-- Doesn't work, not enough permissions
-/*
-	ifr.src = "http://atx-coder.rsi.global/ui#logout:";	
-*/
-/*	
-	//-- Doesn't work, doesn't actually clear server tokens
-	var request = new XMLHttpRequest();
+function logMeOut() {
+	//-- AJAX requesting the logout page in the background doesn't work; server token not removed.
+/*	var request = new XMLHttpRequest();
 	if (request) {
 		request.open("GET", "http://atx-coder.rsi.global/ui#logout:", false);
        	request.send();
@@ -17,11 +24,9 @@ function requestRelease() {
 		console.log(request.responseText);
 	}
 */	
-}
-
-function logMeOut() {
-    var newURL = "http://atx-coder.rsi.global/ui#logout:";
-    chrome.tabs.create({ url: newURL });
+    //-- But bringing up a new browser tab with the logout page does work.
+	var newURL = "http://atx-coder.rsi.global/ui#logout:";
+	chrome.tabs.create({ url: newURL });
 }
 
 function toggleAutoLogout() {
@@ -41,6 +46,7 @@ function updateRemoteLogoutInterval() {
 }
 
 function updateUsers() {
+	//-- Fire off an AJAX request to get list of users from remote server. Display results at the bottom of the popup
 	var req = new XMLHttpRequest();
 	if (req) {
        	req.onreadystatechange = function() {
@@ -66,8 +72,11 @@ window.onunload = function() {
 }
 
 window.onload = function() {
+	//-- Disable forms triggering default action (submit) if return key is pressed in input fields
 	document.getElementById("local_controls").addEventListener("submit", function(e) { e.preventDefault(); return false; });
 	document.getElementById("remote_controls").addEventListener("submit", function(e) { e.preventDefault(); return false; });
+	
+	//-- Add click/change listeners to input widgets
 	document.getElementById("request").addEventListener("click", requestRelease);
 	document.getElementById("logout").addEventListener("click", logMeOut);
 	
@@ -84,8 +93,10 @@ window.onload = function() {
 	remote_interval.disabled = !remote_toggle.checked;
 	remote_interval.addEventListener("change", updateRemoteLogoutInterval);
 	
+	//-- get remote user list once on load
 	updateUsers();
 }
 
-setInterval(updateUsers, 15 * 1000);
+//-- set remote user list to refresh at set interval
+setInterval(updateUsers, 60 * 1000);
 
