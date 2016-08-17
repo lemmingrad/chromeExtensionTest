@@ -1,10 +1,16 @@
 {
   "manifest_version": 2,
 
-  "name": "CCollab Auto-logout helper",
-  "description": "Just one part of many components that try to facilitate auto-logout from CCollab",
+  "name": "CCollab Auto-logout",
+  "description": "Browser-side component of system to facilitate auto-logout from CCollab.",
   "version": "1.0",
 
+  "applications": {
+    "gecko": {
+      "id": "ccautologout@cloudimperiumgames.com"
+    }
+  },
+	
   "browser_action": {
     "default_icon": {
 		"19": "logo/logo19.png",

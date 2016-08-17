@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
 	<head>
-		<title>CCollab Logout</title>
+		<title>CCollab Auto-logout</title>
 		<script src="popup.js"></script>
 	</head>
 	<body>
-		<h2>CCollab logout extension</h2>
-		<p>&copy; Nev 2016</p>
+		<table style="width: 360px"><tr><td><img src="logo/logo64.png" alt=""></td>
+		<td style="padding: 5px;"><h2>CCollab Auto-logout</h2><p>&copy; Nev 2016</p></td></tr></table>
 		<hr>
 		<h3>Local:</h3>
 		<form id="local_controls">
@@ -21,8 +21,7 @@
 		
 			<p><input id="request" type="button" value="Request release (debug)"></p>		
 		</form>
-		<iframe id="remote_users" src="http://localhost:8008/s/list.py" width="300" height="200" frameborder="0">
-		</iframe>
+		<div id="remote_users"></div>
 	</body>
 </html>
 

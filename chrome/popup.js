@@ -40,6 +40,20 @@ function updateRemoteLogoutInterval() {
 	localStorage.remote_interval = remote_interval.value;
 }
 
+function updateUsers() {
+	var req = new XMLHttpRequest();
+	if (req) {
+       	req.onreadystatechange = function() {
+            if (req.readyState == 4 && req.status == 200) {
+				var div = document.getElementById('remote_users');
+				div.innerHTML = req.responseText;
+            }
+        }
+		req.open("GET", "http://localhost:8008/s/list.py");
+		req.send();
+	}	
+}
+
 window.onunload = function() {
 	var auto_toggle = document.getElementById("auto_toggle");
 	localStorage.auto_toggle = auto_toggle.checked;
@@ -69,10 +83,9 @@ window.onload = function() {
 	remote_interval.value = localStorage.remote_interval;
 	remote_interval.disabled = !remote_toggle.checked;
 	remote_interval.addEventListener("change", updateRemoteLogoutInterval);
+	
+	updateUsers();
 }
 
-setInterval(function() {
-	var ifr = document.getElementById('remote_users');
-	ifr.src = "http://localhost:8008/s/list.py";
-}, 60 * 1000);
+setInterval(updateUsers, 15 * 1000);
 

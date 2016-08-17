@@ -13,11 +13,13 @@ conn = sqlite3.connect(sqlite_file)
 c = conn.cursor()
 
 print "Content-type: text/html"
+print "Access-Control-Allow-Origin: *"
 print
 print "<title>List CCIDs</title>"
 
+query = 'SELECT * FROM %s ORDER BY time ASC' % (sqlite_table)
+
 if 1 == debug:
-	query = 'SELECT * FROM %s ORDER BY time ASC' % (sqlite_table)
 	print query + '<hr>'
 
 print '<table id="results" style="border: 1px solid black; border-collapse: collapse;">'
