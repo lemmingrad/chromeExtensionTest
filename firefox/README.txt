@@ -1,3 +1,6 @@
+Minimum version: Firefox 45.0
+(Maximum version: Firefox 47.x due to signed/unsigned extension issue.)
+
 To install in Firefox:
 
 Open Firefox browser.
@@ -12,6 +15,9 @@ Ensure CCollab Auto-logout extension is installed and enabled.
 Note: Because the extension is unsigned, you have to allow Firefox to run untrusted addons by
 setting xpinstall.signatures.required to false, and you will get warnings about it not being
 verified for use in Firefox in the Extensions page.
+
+Note2: As of Firefox 48.0, unsigned extensions are not allowed at all, even with tweaks to the config.
+Investigating how to get addon signed.
 
 To use:
 
