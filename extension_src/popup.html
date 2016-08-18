@@ -3,6 +3,7 @@
 	<head>
 		<title>CCollab Auto-logout</title>
 		<script src="popup.js"></script>
+		<link rel="stylesheet" type="text/css" href="popup.css">
 	</head>
 	<body>
 		<table style="width: 360px"><tr><td><img src="logo/logo64.png" alt=""></td>
@@ -20,7 +21,7 @@
 			<p>after waiting at least <input id="remote_interval" type="number" value="300" size="5" style="width: 60px;"> seconds.</p>
 			<p>Address: <input id="remote_address" type="text" value="localhost:8080"></p>
 		
-			<p><input id="request" type="button" value="Request release (debug)"></p>		
+			<p><input id="request" type="hidden" value="Request release (debug)"></p>
 		</form>
 		<div id="remote_users"></div>
 	</body>
