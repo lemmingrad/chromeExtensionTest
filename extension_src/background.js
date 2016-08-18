@@ -48,6 +48,12 @@ function getLocalStorageInt(id, dfault) {
 	}	
 	return dfault;
 }
+function getLocalStorageString(id, dfault) {
+	if (null != localStorage[id]) {
+		return localStorage[id];
+	}
+	return dfault;
+}
 
 function testTabs(domain, callbackFn) {
 	chrome.tabs.query({"url": "*://" + domain + "/*"}, function(tabs2) {  
@@ -64,8 +70,7 @@ function doSendRemoteUpdate(domain, cookie) {
 }
 function doNotifyAjax(domain, cookie) {
 	//-- Heartbeat to server
-	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value;
-
+	var URL = "http://" + getLocalStorageString("remote_address", "localhost:8080") + "/s/update.py?ccid=" + cookie.value;
 	var remoteInterval = getLocalStorageInt("remote_interval", 0);
 	if (remoteInterval > 0) {
 		URL += "&hold=" + remoteInterval;
@@ -81,7 +86,7 @@ function doNotifyAjax(domain, cookie) {
 }
 function doClearAjax(domain, cookie) {
 	//-- Tell server to remove us
-	URL = "http://localhost:8008/s/update.py?ccid=" + cookie.value + "&action=remove";
+	var URL = "http://" + getLocalStorageString("remote_address", "localhost:8080") + "/s/update.py?ccid=" + cookie.value + "&action=remove";
 	request = new XMLHttpRequest();
   	if (request) {
       	request.open("GET", URL);

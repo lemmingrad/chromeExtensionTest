@@ -8,7 +8,8 @@ function requestRelease() {
 				div.innerHTML = req.responseText;
             }
         }
-		req.open("GET", "http://localhost:8008/s/request.py");
+		var URL = "http://" + localStorage.remote_address + "/s/request.py";
+		req.open("GET", URL);
 		req.send();
 	}	
 }
@@ -38,11 +39,17 @@ function toggleRemoteLogout() {
 	var remote_toggle = document.getElementById("remote_toggle");
 	localStorage.remote_toggle = remote_toggle.checked;
 	document.getElementById("remote_interval").disabled = !remote_toggle.checked;
+	document.getElementById("remote_address").disabled = !remote_toggle.checked;
 }
 
 function updateRemoteLogoutInterval() {
 	var remote_interval = document.getElementById("remote_interval");
 	localStorage.remote_interval = remote_interval.value;
+}
+
+function updateRemoteLogoutAddress() {
+	var remote_address = document.getElementById("remote_address");
+	localStorage.remote_address = remote_address.value;
 }
 
 function updateUsers() {
@@ -55,7 +62,8 @@ function updateUsers() {
 				div.innerHTML = req.responseText;
             }
         }
-		req.open("GET", "http://localhost:8008/s/list.py");
+		var URL = "http://" + localStorage.remote_address + "/s/list.py";
+		req.open("GET", URL);
 		req.send();
 	}	
 }
@@ -67,8 +75,11 @@ window.onunload = function() {
 	var remote_toggle = document.getElementById("remote_toggle");
 	localStorage.remote_toggle = remote_toggle.checked;
 	
-	var auto_interval = document.getElementById("remote_interval");
+	var remote_interval = document.getElementById("remote_interval");
 	localStorage.remote_interval = remote_interval.value;
+
+	var remote_address = document.getElementById("remote_address");
+	localStorage.remote_address = remote_address.value;
 }
 
 window.onload = function() {
@@ -93,6 +104,11 @@ window.onload = function() {
 	remote_interval.disabled = !remote_toggle.checked;
 	remote_interval.addEventListener("change", updateRemoteLogoutInterval);
 	
+	var remote_address = document.getElementById("remote_address");
+	remote_address.value = localStorage.remote_address;
+	remote_address.disabled = !remote_toggle.checked;
+	remote_address.addEventListener("change", updateRemoteLogoutAddress);
+
 	//-- get remote user list once on load
 	updateUsers();
 }
