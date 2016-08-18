@@ -17,3 +17,10 @@ Local:
   Use the "Log me out now" button as a shortcut to log out as necessary.
 Experimental Remote:
   Ignore it for now, I'm still working on the server!
+
+
+History:
+
+18/8/16: Version 1.0.
+
+

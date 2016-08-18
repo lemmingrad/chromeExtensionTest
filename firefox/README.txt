@@ -1,23 +1,12 @@
 Minimum version: Firefox 45.0
-(Maximum version: Firefox 47.x due to signed/unsigned extension issue.)
 
 To install in Firefox:
 
 Open Firefox browser.
-Open the config page using URL "about:config"
-Continue past the warning about messing with things you don't understand.
-Near the bottom of the list, change the value of "xpinstall.signatures.required" to false.
 Open the extensions page via Add-ons in settings menu. Or use the URL "about:addons".
 Drag the ccautologout.xpi file onto the page.
 Confirm you want to add the extension.
 Ensure CCollab Auto-logout extension is installed and enabled.
-
-Note: Because the extension is unsigned, you have to allow Firefox to run untrusted addons by
-setting xpinstall.signatures.required to false, and you will get warnings about it not being
-verified for use in Firefox in the Extensions page.
-
-Note2: As of Firefox 48.0, unsigned extensions are not allowed at all, even with tweaks to the config.
-Investigating how to get addon signed.
 
 To use:
 
@@ -27,3 +16,8 @@ Local:
   Use the "Log me out now" button as a shortcut to log out as necessary.
 Experimental Remote:
   Ignore it for now, I'm still working on the server!
+
+
+History:
+
+18/8/16: Version 1.0.
