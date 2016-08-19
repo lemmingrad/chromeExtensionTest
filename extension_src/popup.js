@@ -27,7 +27,10 @@ function logMeOut() {
 */	
     //-- But bringing up a new browser tab with the logout page does work.
 	var newURL = "http://atx-coder.rsi.global/ui#logout:";
-	chrome.tabs.create({ url: newURL });
+	chrome.tabs.create({ url: newURL, active: false }, function(tab) {
+		var id = tab.id;
+		setTimeout(function(id) { chrome.tabs.remove(id); }, 5 * 1000, id);
+	});
 }
 
 function toggleAutoLogout() {

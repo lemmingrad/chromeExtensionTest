@@ -102,7 +102,9 @@ function doLogoutNameTest(domain, cookie) {
 function doLogoutScreen(domain, cookie) {
 	//-- Show logout screen
     var newURL = "http://" + domain + "/ui#logout:";
-    chrome.tabs.create({ url: newURL });
+	chrome.tabs.create({ url: newURL, active: false }, function(tab) {
+		setTimeout(function(id) { chrome.tabs.remove(id); }, 5 * 1000, tab.id);
+	});
 	
 	if (true == getLocalStorageBool("remote_toggle", false)) {
 		setTimeout(doClearAjax, 5 * 1000, domain, cookie);
