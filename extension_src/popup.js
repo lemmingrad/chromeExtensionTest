@@ -1,5 +1,6 @@
 function requestRelease() {
 	//-- Fire off an AJAX request to remote server, requesting it release the first user in the list.
+	//-- When it's finished loading, display results at the bottom of the popup.
 	var req = new XMLHttpRequest();
 	if (req) {
        	req.onreadystatechange = function() {
@@ -26,37 +27,16 @@ function logMeOut() {
 	}
 */	
     //-- But bringing up a new browser tab with the logout page does work.
+	//-- Tab will appear in background, and disappear after 5 seconds.
 	var newURL = "http://atx-coder.rsi.global/ui#logout:";
 	chrome.tabs.create({ url: newURL, active: false }, function(tab) {
-		var id = tab.id;
-		setTimeout(function(id) { chrome.tabs.remove(id); }, 5 * 1000, id);
+		setTimeout(function(id) { chrome.tabs.remove(id); }, 5 * 1000, tab.id);
 	});
 }
 
-function toggleAutoLogout() {
-	var auto_toggle = document.getElementById("auto_toggle");
-	localStorage.auto_toggle = auto_toggle.checked;
-}
-
-function toggleRemoteLogout() {
-	var remote_toggle = document.getElementById("remote_toggle");
-	localStorage.remote_toggle = remote_toggle.checked;
-	document.getElementById("remote_interval").disabled = !remote_toggle.checked;
-	document.getElementById("remote_address").disabled = !remote_toggle.checked;
-}
-
-function updateRemoteLogoutInterval() {
-	var remote_interval = document.getElementById("remote_interval");
-	localStorage.remote_interval = remote_interval.value;
-}
-
-function updateRemoteLogoutAddress() {
-	var remote_address = document.getElementById("remote_address");
-	localStorage.remote_address = remote_address.value;
-}
-
 function updateUsers() {
-	//-- Fire off an AJAX request to get list of users from remote server. Display results at the bottom of the popup
+	//-- Fire off an AJAX request to get list of users from remote server. 
+	//-- When it's finished loading, display results at the bottom of the popup.
 	var req = new XMLHttpRequest();
 	if (req) {
        	req.onreadystatechange = function() {
@@ -71,9 +51,49 @@ function updateUsers() {
 	}	
 }
 
+function updateAutoToggle() {
+	var auto_toggle = document.getElementById("auto_toggle");
+	localStorage.auto_toggle = auto_toggle.checked;
+}
+
+function updateAutoToggleFG() {
+	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
+	localStorage.auto_toggle_fg = auto_toggle_fg.checked;
+	document.getElementById("auto_interval_fg").disabled = !auto_toggle_fg.checked;
+}
+
+function updateAutoIntervalFG() {
+	var auto_interval_fg = document.getElementById("auto_interval_fg");
+	localStorage.auto_interval_fg = auto_interval_fg.value;
+}
+
+function updateRemoteToggle() {
+	var remote_toggle = document.getElementById("remote_toggle");
+	localStorage.remote_toggle = remote_toggle.checked;
+	document.getElementById("remote_interval").disabled = !remote_toggle.checked;
+	document.getElementById("remote_address").disabled = !remote_toggle.checked;
+}
+
+function updateRemoteInterval() {
+	var remote_interval = document.getElementById("remote_interval");
+	localStorage.remote_interval = remote_interval.value;
+}
+
+function updateRemoteAddress() {
+	var remote_address = document.getElementById("remote_address");
+	localStorage.remote_address = remote_address.value;
+}
+
+
 window.onunload = function() {
 	var auto_toggle = document.getElementById("auto_toggle");
 	localStorage.auto_toggle = auto_toggle.checked;
+
+	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
+	localStorage.auto_toggle_fg = auto_toggle_fg.checked;
+
+	var auto_interval_fg = document.getElementById("auto_interval_fg");
+	localStorage.auto_interval_fg = auto_interval_fg.value;
 
 	var remote_toggle = document.getElementById("remote_toggle");
 	localStorage.remote_toggle = remote_toggle.checked;
@@ -96,21 +116,30 @@ window.onload = function() {
 	
 	var auto_toggle = document.getElementById("auto_toggle");
 	auto_toggle.checked = JSON.parse(localStorage.auto_toggle);
-	auto_toggle.addEventListener("click", toggleAutoLogout);
+	auto_toggle.addEventListener("click", updateAutoToggle);
+
+	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
+	auto_toggle_fg.checked = JSON.parse(localStorage.auto_toggle_fg);
+	auto_toggle_fg.addEventListener("click", updateAutoToggleFG);
+
+	var	auto_interval_fg = document.getElementById("auto_interval_fg");
+	auto_interval_fg.value = localStorage.auto_interval_fg;
+	auto_interval_fg.disabled = !auto_toggle.checked;
+	auto_interval_fg.addEventListener("change", updateAutoIntervalFG);
 	
 	var remote_toggle = document.getElementById("remote_toggle");
 	remote_toggle.checked = JSON.parse(localStorage.remote_toggle);
-	remote_toggle.addEventListener("click", toggleRemoteLogout);
+	remote_toggle.addEventListener("click", updateRemoteToggle);
 
 	var remote_interval = document.getElementById("remote_interval");
 	remote_interval.value = localStorage.remote_interval;
 	remote_interval.disabled = !remote_toggle.checked;
-	remote_interval.addEventListener("change", updateRemoteLogoutInterval);
+	remote_interval.addEventListener("change", updateRemoteInterval);
 	
 	var remote_address = document.getElementById("remote_address");
 	remote_address.value = localStorage.remote_address;
 	remote_address.disabled = !remote_toggle.checked;
-	remote_address.addEventListener("change", updateRemoteLogoutAddress);
+	remote_address.addEventListener("change", updateRemoteAddress);
 
 	//-- get remote user list once on load
 	updateUsers();

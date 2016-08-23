@@ -56,8 +56,15 @@ function getLocalStorageString(id, dfault) {
 }
 
 function testTabs(domain, callbackFn) {
-	chrome.tabs.query({"url": "*://" + domain + "/*"}, function(tabs2) {  
-		callbackFn(domain, tabs2.length);
+	chrome.tabs.query({"url": "*://" + domain + "/*"}, function(tabs) {
+		var fg_count = 0;
+		for (var i = 0; i < tabs.length; i++) {
+			if (tabs[i].active) {
+				++fg_count;
+			}
+		}
+
+		callbackFn(domain, tabs.length, fg_count);
  	});
 }
 
@@ -113,23 +120,59 @@ function doLogoutScreen(domain, cookie) {
 
 function doSetTicketExistsBool(domain, cookie) {
 	var ticketExists = (null != cookie);
-	if (ticketExists != ticketExisted) {
-		ticketExisted = ticketExists;
+	if (ticketExists != prevTicketExisted) {
+		prevTicketExisted = ticketExists;
 		dirtyFlag = true;
 	}
 }
 
 var dirtyFlag = true;
-var numTabs = 0;
-var ticketExisted = false;
+var prevTabCount = 0;
+var prevTicketExisted = false;
 
-function doWork(domain, c) {
+var futureTimeEvent = {
+	id: null,
+	limit: 0,
+	callback: null,
+	set: function(_callback, _limit) {
+		this.callback = _callback;
+		this.limit = _limit;
+		console.log("futureTimeEvent set(" + _limit + ")");
+	},
+	start: function() {
+		if (true == getLocalStorageBool("auto_toggle_fg", false)) {
+			if (null == this.id && 0 < this.limit && null != this.callback) {
+				this.id = setTimeout(this.callback, this.limit);
+			}
+		}
+		console.log("futureTimeEvent started");
+	},
+	stop: function() {
+		if (null != this.id) {
+			clearTimeout(this.id);
+			this.id = null;
+		}
+		console.log("futureTimeEvent stopped");
+	},
+	restart: function() {
+		this.stop();
+		this.start();
+	}
+}
+
+function doWork(domain, tab_count, fg_count) {
 	//-- just some debug info. Spam!
-	console.log(c + " open " + domain + " tabs detected.");
+	console.log(tab_count + " open " + domain + " tabs detected (" + fg_count + " active).");
 	getCookies(domain);
 	
 	//-- local logout logic block:
 	
+	//-- set futureEvent
+	futureTimeEvent.set(function() { 
+		onCookieExists(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
+		futureTimeEvent.stop();
+	}, getLocalStorageInt("auto_interval_fg", 300) * 1000); 
+
 	// if number of tabs is 0
 	//   if auto_toggle is true
 	//     if ticket exists
@@ -143,8 +186,15 @@ function doWork(domain, c) {
 	//     endif
 	//   endif
 	// endif
-	if (0 < c) {
+	if (0 < tab_count) {
+		if (0 < fg_count) {
+			//-- at least 1 domain tabs in foreground
+			futureTimeEvent.restart();
+		} else {
+			//-- no domain tabs in foreground
+		}
 	} else {
+		futureTimeEvent.stop();
 		if (true == getLocalStorageBool("auto_toggle", false)) {
 			onCookieExists(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
 		}
@@ -156,8 +206,8 @@ function doWork(domain, c) {
 	onCookie(domain, "CodeCollaboratorTicketId", doSetTicketExistsBool);
 
 	//-- update dirty flag if number of tabs has changed
-	if (c != numTabs) {
-		numTabs = c;
+	if (tab_count != prevTabCount) {
+		prevTabCount = tab_count;
 		dirtyFlag = true;
 	}
 
