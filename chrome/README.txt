@@ -1,12 +1,13 @@
 To install in Chrome:
 
-Open Chrome browser.
-Open the extensions page via settings. Or use the URL "chrome:://extensions".
-Enable the "Developer mode" checkbox in the top-right corner of the page.
-Click "Load unpacked extension".
-Select the folder containing the loose files (with the "manifest.json" file in).
-Confirm you want to add the extension.
-Ensure CCollab Auto-logout extension is installed and enabled.
+1) Unzip the latest .zip to local folder of your choice.
+2) Open Chrome browser.
+3) Open the extensions page via settings. Or use the URL "chrome:://extensions".
+4) Enable the "Developer mode" checkbox in the top-right corner of the page.
+5) Click "Load unpacked extension".
+6) Select the folder containing the loose files (with the "manifest.json" file in).
+7) Confirm you want to add the extension.
+8) Ensure correct version of CCollab Auto-logout extension is installed and enabled.
 
 Note: Unfortunately, because the extension is unsigned, you might get warnings about it 
 not being from a trusted source, ie: Chrome Web Store, when you start up the browser.
