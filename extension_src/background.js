@@ -9,13 +9,6 @@ function getCookies(domain) {
 		}
 	});
 }
-
-//function removeCookie(domain, cookieName) {
-//	chrome.cookies.remove({"url": "http://" + domain + "/", "name": cookieName}, function(deleted_cookie) { 
-//		console.log("Deleted cookie: " + deleted_cookie); 
-//	});
-//}
-
 function onCookieExists(domain, cookieName, callbackFn) {
 	chrome.cookies.get({"url": "http://" + domain + "/", "name": cookieName}, function(cookie) {
 		if (cookie) {
@@ -23,13 +16,6 @@ function onCookieExists(domain, cookieName, callbackFn) {
 		}
 	});
 }
-//function onCookieNotExists(domain, cookieName, callbackFn) {
-//	chrome.cookies.get({"url": "http://" + domain + "/", "name": cookieName}, function(cookie) {
-//		if (null == cookie) {
-//			callbackFn(domain);
-//		}
-//	});
-//}
 function onCookie(domain, cookieName, callbackFn) {
 	chrome.cookies.get({"url": "http://" + domain + "/", "name": cookieName}, function(cookie) {
 		callbackFn(domain, cookie);
@@ -88,7 +74,7 @@ function doNotifyAjax(domain, cookie) {
       	request.open("GET", URL);
        	request.send();
    	}
-	console.log("Notify Ajax: " + URL);
+//	console.log("Notify Ajax: " + URL);
 	dirtyFlag = false;
 }
 function doClearAjax(domain, cookie) {
@@ -99,7 +85,7 @@ function doClearAjax(domain, cookie) {
       	request.open("GET", URL);
        	request.send();
    	}
-	console.log("Notify Ajax: " + URL);
+//	console.log("Notify Ajax: " + URL);
 	dirtyFlag = false;
 }
 
@@ -107,15 +93,17 @@ function doLogoutNameTest(domain, cookie) {
 	onCookieExists(domain, "CodeCollaboratorLogin", doLogoutScreen);
 }
 function doLogoutScreen(domain, cookie) {
-	//-- Show logout screen
-    var newURL = "http://" + domain + "/ui#logout:";
+	//-- Show logout screen in background, close it after 5 seconds
+    //-- After close, send clear event off to remote sever if necessary.
+	var newURL = "http://" + domain + "/ui#logout:";
 	chrome.tabs.create({ url: newURL, active: false }, function(tab) {
-		setTimeout(function(id) { chrome.tabs.remove(id); }, 5 * 1000, tab.id);
+		setTimeout(function(_id, _domain, _cookie) { 
+			chrome.tabs.remove(_id); 
+			if (true == getLocalStorageBool("remote_toggle", false)) {
+				doClearAjax(_domain, _cookie);
+			}
+		}, 5 * 1000, tab.id, domain, cookie);
 	});
-	
-	if (true == getLocalStorageBool("remote_toggle", false)) {
-		setTimeout(doClearAjax, 5 * 1000, domain, cookie);
-	}
 }
 
 function doSetTicketExistsBool(domain, cookie) {
@@ -133,68 +121,67 @@ var prevTicketExisted = false;
 var futureTimeEvent = {
 	id: null,
 	limit: 0,
-	callback: null,
-	set: function(_callback, _limit) {
-		this.callback = _callback;
-		this.limit = _limit;
-		console.log("futureTimeEvent set(" + _limit + ")");
-	},
-	start: function() {
+	callback: function(domain) { 
 		if (true == getLocalStorageBool("auto_toggle_fg", false)) {
-			if (null == this.id && 0 < this.limit && null != this.callback) {
-				this.id = setTimeout(this.callback, this.limit);
+			onCookieExists(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
+		}
+//		console.log("futureTimeEvent callback");
+		futureTimeEvent.stop();
+	},
+	start: function(domain, limit) {
+		if (null == this.id) {
+			if (true == getLocalStorageBool("auto_toggle_fg", false)) {
+				this.limit = limit;
+				this.id = setTimeout(this.callback, limit, domain);
+//				console.log("futureTimeEvent started");
 			}
 		}
-		console.log("futureTimeEvent started");
 	},
 	stop: function() {
 		if (null != this.id) {
 			clearTimeout(this.id);
 			this.id = null;
 		}
-		console.log("futureTimeEvent stopped");
+//		console.log("futureTimeEvent stopped");
 	},
-	restart: function() {
-		this.stop();
-		this.start();
+	update: function(domain, limit, fg) {
+		if (true == getLocalStorageBool("auto_toggle_fg", false)) {
+			if (true == fg) {
+//				console.log("futureTimeEvent update (fg)");
+				//-- reset timer
+				this.stop();
+				this.start(domain, limit);
+			} else if (limit != this.limit) {
+//				console.log("futureTimeEvent update (bg, limit changed)");
+				//-- update the timeout limit
+				this.stop();
+				this.start(domain, limit);
+			} else if (null == this.id) {
+//				console.log("futureTimeEvent update (bg, not running)");
+				this.start(domain, limit);
+			}
+		} else {
+			this.stop();
+		}
 	}
 }
 
 function doWork(domain, tab_count, fg_count) {
 	//-- just some debug info. Spam!
-	console.log(tab_count + " open " + domain + " tabs detected (" + fg_count + " active).");
-	getCookies(domain);
+//	console.log(tab_count + " open " + domain + " tabs detected (" + fg_count + " active).");
+//	getCookies(domain);
 	
 	//-- local logout logic block:
 	
-	//-- set futureEvent
-	futureTimeEvent.set(function() { 
-		onCookieExists(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
-		futureTimeEvent.stop();
-	}, getLocalStorageInt("auto_interval_fg", 300) * 1000); 
-
-	// if number of tabs is 0
-	//   if auto_toggle is true
-	//     if ticket exists
-	//       if user exists
-	//         load logout tab
-	//         if remote_toggle is true
-	//           send "left" to server
-	//           clear dirty flag
-	//         endif
-	//       endif
-	//     endif
-	//   endif
-	// endif
+	//-- do tab logic
 	if (0 < tab_count) {
-		if (0 < fg_count) {
-			//-- at least 1 domain tabs in foreground
-			futureTimeEvent.restart();
-		} else {
-			//-- no domain tabs in foreground
-		}
+		//-- at least 1 domain tab open
+		futureTimeEvent.update(domain, getLocalStorageInt("auto_interval_fg", 300) * 1000, (fg_count > 0));
 	} else {
+		//-- no domain tabs
+		//-- stop the timer controlling background tab auto-logout
 		futureTimeEvent.stop();
+		//-- do no-tabs auto-logout
 		if (true == getLocalStorageBool("auto_toggle", false)) {
 			onCookieExists(domain, "CodeCollaboratorTicketId", doLogoutNameTest);
 		}
@@ -211,20 +198,7 @@ function doWork(domain, tab_count, fg_count) {
 		dirtyFlag = true;
 	}
 
-	// if remote_toggle is true
-	//   if dirty flag is true
-	//     if ticket exists
-	//       if user exists
-	//         send "alive"
-	//       endif
-	//     else
-	//       if user exists
-	//         send "left"
-	//       endif
-	//     endif
-	//     clear dirty flag
-	//   endif
-	// endif
+	//-- if dirty flag set, send an update to remote server
 	if (true == getLocalStorageBool("remote_toggle", false) && true == dirtyFlag) {
 		onCookie(domain, "CodeCollaboratorTicketId", doSendRemoteUpdate);
 	}
@@ -233,4 +207,4 @@ function doWork(domain, tab_count, fg_count) {
 //-- set refresh interval for main logic loop
 setInterval(function() {
 	testTabs("atx-coder.rsi.global", doWork);
-}, 15 * 1000);
+}, 13 * 1000);

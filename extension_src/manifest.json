@@ -3,7 +3,7 @@
 
   "name": "CCollab Auto-logout",
   "description": "Browser-side component of system to facilitate auto-logout from CCollab.",
-  "version": "1.0",
+  "version": "1.0.4",
 
   "applications": {
     "gecko": {

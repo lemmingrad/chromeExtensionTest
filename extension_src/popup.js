@@ -64,6 +64,10 @@ function updateAutoToggleFG() {
 
 function updateAutoIntervalFG() {
 	var auto_interval_fg = document.getElementById("auto_interval_fg");
+	if (auto_interval_fg.value < 60)
+	{
+		auto_interval_fg.value = 60;
+	}
 	localStorage.auto_interval_fg = auto_interval_fg.value;
 }
 
@@ -76,6 +80,10 @@ function updateRemoteToggle() {
 
 function updateRemoteInterval() {
 	var remote_interval = document.getElementById("remote_interval");
+	if (remote_interval.value < 300)
+	{
+		remote_interval.value = 300;
+	}
 	localStorage.remote_interval = remote_interval.value;
 }
 
@@ -86,23 +94,13 @@ function updateRemoteAddress() {
 
 
 window.onunload = function() {
-	var auto_toggle = document.getElementById("auto_toggle");
-	localStorage.auto_toggle = auto_toggle.checked;
+	updateAutoToggle();
+	updateAutoToggleFG();
+	updateAutoIntervalFG();
 
-	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
-	localStorage.auto_toggle_fg = auto_toggle_fg.checked;
-
-	var auto_interval_fg = document.getElementById("auto_interval_fg");
-	localStorage.auto_interval_fg = auto_interval_fg.value;
-
-	var remote_toggle = document.getElementById("remote_toggle");
-	localStorage.remote_toggle = remote_toggle.checked;
-	
-	var remote_interval = document.getElementById("remote_interval");
-	localStorage.remote_interval = remote_interval.value;
-
-	var remote_address = document.getElementById("remote_address");
-	localStorage.remote_address = remote_address.value;
+	updateRemoteToggle();
+	updateRemoteInterval();
+	updateRemoteAddress();
 }
 
 window.onload = function() {
@@ -115,20 +113,20 @@ window.onload = function() {
 	document.getElementById("logout").addEventListener("click", logMeOut);
 	
 	var auto_toggle = document.getElementById("auto_toggle");
-	auto_toggle.checked = JSON.parse(localStorage.auto_toggle);
+	auto_toggle.checked = !!JSON.parse(localStorage.auto_toggle.toLowerCase());
 	auto_toggle.addEventListener("click", updateAutoToggle);
 
 	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
-	auto_toggle_fg.checked = JSON.parse(localStorage.auto_toggle_fg);
+	auto_toggle_fg.checked = !!JSON.parse(localStorage.auto_toggle_fg.toLowerCase());
 	auto_toggle_fg.addEventListener("click", updateAutoToggleFG);
 
 	var	auto_interval_fg = document.getElementById("auto_interval_fg");
 	auto_interval_fg.value = localStorage.auto_interval_fg;
-	auto_interval_fg.disabled = !auto_toggle.checked;
+	auto_interval_fg.disabled = !auto_toggle_fg.checked;
 	auto_interval_fg.addEventListener("change", updateAutoIntervalFG);
 	
 	var remote_toggle = document.getElementById("remote_toggle");
-	remote_toggle.checked = JSON.parse(localStorage.remote_toggle);
+	remote_toggle.checked = !!JSON.parse(localStorage.remote_toggle.toLowerCase());
 	remote_toggle.addEventListener("click", updateRemoteToggle);
 
 	var remote_interval = document.getElementById("remote_interval");

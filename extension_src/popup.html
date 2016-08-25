@@ -7,20 +7,20 @@
 	</head>
 	<body>
 		<table style="width: 360px"><tr><td><img src="logo/logo64.png" alt=""></td>
-		<td style="padding: 5px;"><h2>CCollab Auto-logout</h2><p>&copy; Nev 2016</p></td></tr></table>
+		<td style="padding: 5px;"><h2>CCollab Auto-logout</h2>1.0.4<p>&copy; Nev 2016</p></td></tr></table>
 		<hr>
 		<h3>Local:</h3>
 		<form id="local_controls">
 			<p>Force logout if all CCollab tabs are closed: <input id="auto_toggle" type="checkbox"></p>
 			<p>Force logout if no CCollab tab is active in the foreground: <input id="auto_toggle_fg" type="checkbox"><br>
-			for at least <input id="auto_interval_fg" type="number" value="600" size="5" style="width: 60px;"> seconds.</p>
+			for at least <input id="auto_interval_fg" type="number" value="300" min="60" size="5" style="width: 60px;"> seconds.</p>
 			<p>Or <input id="logout" type="button" value="Log out now"></p>
 		</form>
 		<hr>
 		<h3>Experimental Remote:</h3>
 		<form id="remote_controls">
 			<p>Allow remote server to logout: <input id="remote_toggle" type="checkbox"><br>
-			after waiting at least <input id="remote_interval" type="number" value="300" size="5" style="width: 60px;"> seconds.</p>
+			after waiting at least <input id="remote_interval" type="number" value="300" min="300" size="5" style="width: 60px;"> seconds.</p>
 			<p>Address: <input id="remote_address" type="text" value="localhost:8080"></p>
 		
 			<p><input id="request" type="hidden" value="Request release (debug)"></p>
