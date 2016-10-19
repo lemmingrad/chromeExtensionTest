@@ -59,7 +59,19 @@ function updateAutoToggle() {
 function updateAutoToggleFG() {
 	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
 	localStorage.auto_toggle_fg = auto_toggle_fg.checked;
-	document.getElementById("auto_interval_fg").disabled = !auto_toggle_fg.checked;
+
+	var auto_toggle_mini = document.getElementById("auto_toggle_mini");
+
+	document.getElementById("auto_interval_fg").disabled = !auto_toggle_fg.checked && !auto_toggle_mini.checked;
+}
+
+function updateAutoToggleMini() {
+	var auto_toggle_mini = document.getElementById("auto_toggle_mini");
+	localStorage.auto_toggle_mini = auto_toggle_mini.checked;
+
+	var auto_toggle_fg = document.getElementById("auto_toggle_fg");
+
+	document.getElementById("auto_interval_fg").disabled = !auto_toggle_fg.checked && !auto_toggle_mini.checked;
 }
 
 function updateAutoIntervalFG() {
@@ -96,6 +108,7 @@ function updateRemoteAddress() {
 window.onunload = function() {
 	updateAutoToggle();
 	updateAutoToggleFG();
+	updateAutoToggleMini();
 	updateAutoIntervalFG();
 
 	updateRemoteToggle();
@@ -120,9 +133,13 @@ window.onload = function() {
 	auto_toggle_fg.checked = !!JSON.parse(localStorage.auto_toggle_fg.toLowerCase());
 	auto_toggle_fg.addEventListener("click", updateAutoToggleFG);
 
+	var auto_toggle_mini = document.getElementById("auto_toggle_mini");
+	auto_toggle_mini.checked = !!JSON.parse(localStorage.auto_toggle_mini.toLowerCase());
+	auto_toggle_mini.addEventListener("click", updateAutoToggleMini);
+
 	var	auto_interval_fg = document.getElementById("auto_interval_fg");
 	auto_interval_fg.value = localStorage.auto_interval_fg;
-	auto_interval_fg.disabled = !auto_toggle_fg.checked;
+	auto_interval_fg.disabled = !auto_toggle_fg.checked && !auto_toggle_mini.checked;
 	auto_interval_fg.addEventListener("change", updateAutoIntervalFG);
 	
 	var remote_toggle = document.getElementById("remote_toggle");
